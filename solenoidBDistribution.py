@@ -86,7 +86,8 @@ def lomO(z_, Z0, R, FMThickness):
 def lomI(z_, Z0, R, FMThickness):
     return sqrt(R**2 - (z_-(Z0-R/2-FMThickness))**2)
 
-def Ball(lo, z, coilRadius, coilZs, FMThickness, Z_LO, Z_UO, Z_LI, Z_UI, I, k_phi):
+
+def Ball(lo, z, coilRadius, coilZs, FMThickness, Z0, Z_LO, Z_UO, Z_LI, Z_UI, I, k_phi):
     return Bcoil(lo, z, coilRadius, coilZs, I) +\
     Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_LO, Z_UO, k_phi) +\
     Bmag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_LI, Z_UI, -k_phi)
@@ -123,9 +124,9 @@ if __name__ == '__main__':
     args = []
     for i, lo in enumerate(los):
         for j, z in enumerate(zs):
-            args.append((lo, z, coilRadius, coilZs, FMThickness, Z_LO, Z_UO, Z_LI, Z_UI, I, k_phi))
+            args.append((lo, z, coilRadius, coilZs, FMThickness, Z0, Z_LO, Z_UO, Z_LI, Z_UI, I, k_phi))
 
-    # with mp.Pool(processes=min(mp.cpu_count()-1, 50)) as pool:
+    print('Start distributing ...')
     with mp.Pool(processes=mp.cpu_count()*3//4) as pool:
         bs = pool.starmap(Ball, args)
 
