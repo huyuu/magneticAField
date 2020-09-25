@@ -87,6 +87,9 @@ class CloakAgent():
         # run as single mode
         elif modeString.lower() == '1':
             self.runAsSingle()
+        # run as single mode in parallel
+        elif modeString.lower() == 'p':
+            self.runAsSingleInParallel()
 
 
     def runAsMasterOnCluster(self):
@@ -169,7 +172,7 @@ class CloakAgent():
         self.__plotBFieldDistribution()
 
 
-    def runAsSingleParallel(self):
+    def runAsSingleInParallel(self):
         _amount = len(self.los) * len(self.zs)
         args = []
         for i, lo in enumerate(self.los):
