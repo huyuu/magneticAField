@@ -76,7 +76,7 @@ def Bcoil(lo, z, lo_, coilZs, I):
     for i, z_ in enumerate(coilZs):
         Bs_lo += -1.0 * _Bmag_lo(z_, lo, z, lom)
         Bs_z += 1.0 * _Bmag_z(z_, lo, z, lom)
-    return mu0*k_phi/(2*pi*lo) * nu.array([Bs_lo, Bs_z])
+    return mu0*I/(2*pi*lo) * nu.array([Bs_lo, Bs_z])
 
 
 def lomO(z_, Z0, R, FMThickness):
