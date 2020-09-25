@@ -150,7 +150,7 @@ class CloakAgent():
 
 
     def __plotBFieldDistribution(self):
-        with open('bs.pickle', 'wb') as file:
+        with open('bs.pickle', 'rb') as file:
             bs = pickle.load(file)
         los = []
         zs = []
