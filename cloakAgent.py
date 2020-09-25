@@ -24,15 +24,16 @@ class CloakAgent():
         # coil
         self.I = 1.0
         self.coilRadius = 1.5e-2
-        self.N = 25
-        conductorWidth = self.coilRadius/100.0
+        self.N = 100
+        conductorWidth = 4e-3
+        # conductorWidth = self.coilRadius/100.0
         if self.N % 2 == 1:
             self.Z0 = (self.N//2) * conductorWidth
         else:
             self.Z0 = (self.N//2 - 0.5) * conductorWidth
         self.coilZs = nu.linspace(-self.Z0, self.Z0, self.N)
         # magnets
-        self.k_phi = 500.0
+        self.k_phi = 1e4
         self.FMThickness = 1e-3
         self.Z_lO = self.Z0-self.coilRadius/2+self.FMThickness
         self.Z_uO = self.Z0+self.coilRadius/2+self.FMThickness
@@ -209,7 +210,7 @@ class CloakAgent():
         pl.xlabel(r'Relative Radius Position $\rho$/coilRadius [-]', fontsize=22)
         pl.ylabel(r'Relative Z Position $z$/coilHeight [-]', fontsize=22)
         pl.tick_params(labelsize=16)
-        pl.quiver(los/self.coilRadius, zs/self.Z0, bs_lo, bs_z, label=r'$B$ field')
+        pl.quiver(_los/self.coilRadius, _zs/self.Z0, bs_lo, bs_z, label=r'$B$ field')
         pl.show()
 
 
