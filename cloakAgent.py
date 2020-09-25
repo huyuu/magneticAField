@@ -169,6 +169,22 @@ class CloakAgent():
         self.__plotBFieldDistribution()
 
 
+    def runAsSingleParallel(self):
+        _amount = len(self.los) * len(self.zs)
+        args = []
+        for i, lo in enumerate(self.los):
+            for j, z in enumerate(self.zs):
+                args.append((lo, z, self.coilRadius, self.coilZs, self.FMThickness, self.Z0, self.Z_lO, self.Z_uO, self.Z_lI, self.Z_uI, self.I, self.k_phi))
+        with mp.Pool(processes=mp.cpu_count()*3//4) as pool:
+            bs = pool.starmap(Ball, args)
+        bs = nu.array(bs)
+        # save results
+        with open('bs.pickle', 'wb') as file:
+            pickle.dump(bs, file)
+        # plot
+        self.__plotBFieldDistribution()
+
+
     def __plotBFieldDistribution(self):
         with open('bs.pickle', 'rb') as file:
             bs = pickle.load(file)
