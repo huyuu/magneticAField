@@ -119,7 +119,7 @@ class CloakAgent():
             if popResult == None:
                 continue
             _, binaryBp = popResult
-            bs[collectedAmount*len(los):collectedAmount*len(los)+len(zs), :] = pickle.loads(binaryBp)
+            bs[collectedAmount*len(self.los):collectedAmount*len(self.los)+len(self.zs), :] = pickle.loads(binaryBp)
             collectedAmount += 1
         _end = dt.datetime.now()
         print('All {} trajectories generated. (cost {:.3g} hours)'.format(_amount, (_end-_start).total_seconds()/3600.0))
