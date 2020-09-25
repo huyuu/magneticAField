@@ -118,6 +118,7 @@ class CloakAgent():
             collectedAmount += 1
         _end = dt.datetime.now()
         print('All {} trajectories generated. (cost {:.3g} hours)'.format(_amount, (_end-_start).total_seconds()/3600.0))
+        print(bs)
         # sort before save
         bs = bs.sort(axis=0)
         # save results
