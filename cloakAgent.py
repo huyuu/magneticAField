@@ -25,7 +25,7 @@ class CloakAgent():
         self.I = 1.0
         self.coilRadius = 1.5e-2
         self.N = 25
-        conductorWidth = 4e-2
+        conductorWidth = self.coilRadius/100.0
         if self.N % 2 == 1:
             self.Z0 = (self.N//2) * conductorWidth
         else:
@@ -42,9 +42,9 @@ class CloakAgent():
         self.plotLeftBoundCoeff = 0.1
         self.plotRightBoundCoeff = 0.9
         self.plotLowerBoundCoeff = 0.0
-        self.plotUpperBoundCoeff = 1.5
+        self.plotUpperBoundCoeff = 1.2
         # points to be measured
-        self.points = 100
+        self.points = 50
         self.los = nu.linspace(self.plotLeftBoundCoeff, self.plotRightBoundCoeff, self.points) * self.coilRadius
         self.zs = nu.linspace(self.plotLowerBoundCoeff, self.plotUpperBoundCoeff, self.points) * self.Z0
 
@@ -159,6 +159,7 @@ class CloakAgent():
         for i, lo in enumerate(self.los):
             for j, z in enumerate(self.zs):
                 bp = Ball(lo, z, self.coilRadius, self.coilZs, self.FMThickness, self.Z0, self.Z_lO, self.Z_uO, self.Z_lI, self.Z_uI, self.I, self.k_phi)
+                # bp = Bcoil(lo, z, self.coilRadius, self.coilZs, self.I)
                 bs[count, :] = [lo, z, bp[0], bp[1]]
                 count += 1
         # save results
@@ -171,26 +172,27 @@ class CloakAgent():
     def __plotBFieldDistribution(self):
         with open('bs.pickle', 'rb') as file:
             bs = pickle.load(file)
-        los = []
-        zs = []
         bs_lo = []
         bs_z = []
         for b in bs:
             lo, z, bp_lo, bp_z = b
-            los.append(lo)
-            zs.append(z)
             bs_lo.append(bp_lo)
             bs_z.append(bp_z)
-        los = nu.array(los)
-        zs = nu.array(zs)
         bs_lo = nu.array(bs_lo)
         bs_z = nu.array(bs_z)
-        # _los, _zs = nu.meshgrid(los, zs, indexing='ij')
-        pl.quiver(los/self.coilRadius, zs/self.Z0, bs_lo, bs_z, label=r'$B$ field')
+
+        _los, _zs = nu.meshgrid(self.los, self.zs, indexing='ij')
+        pl.contourf(_los/self.coilRadius, _zs/self.Z0, bs_lo.reshape(self.points, self.points), levels=50)
+        pl.colorbar()
+        pl.show()
+        pl.contourf(_los/self.coilRadius, _zs/self.Z0, bs_z.reshape(self.points, self.points), levels=50)
+        pl.colorbar()
+        pl.show()
         pl.title(r'Coil $B$ Distribution ' + f'(N={self.N})', fontsize=24)
         pl.xlabel(r'Relative Radius Position $\rho$/coilRadius [-]', fontsize=22)
         pl.ylabel(r'Relative Z Position $z$/coilHeight [-]', fontsize=22)
         pl.tick_params(labelsize=16)
+        pl.quiver(los/self.coilRadius, zs/self.Z0, bs_lo, bs_z, label=r'$B$ field')
         pl.show()
 
 
