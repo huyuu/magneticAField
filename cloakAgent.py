@@ -12,7 +12,7 @@ from numpy import abs, sqrt, cos, sin, pi
 from scipy.integrate import quadrature, dblquad, tplquad
 from scipy.special import ellipk, ellipe, ellipkm1
 
-from solenoidBDistribution import Ball
+from solenoidBDistribution import Ball as Bp
 
 
 # Model
@@ -107,20 +107,19 @@ class CloakAgent():
         # start main calculation
         # generate all points and push them to raw queue.
         for i, lo in enumerate(self.los):
-            for j, z in enumerate(self.zs):
-                args = (lo, z, self.coilRadius, self.coilZs, self.FMThickness, self.Z0, self.Z_lO, self.Z_uO, self.Z_lI, self.Z_uI, self.I, self.k_phi)
-                master.lpush('rawQueue', pickle.dumps(args))
-        _amount = len(self.los)*len(self.zs)
+            args = (lo, self.zs, self.coilRadius, self.coilZs, self.FMThickness, self.Z0, self.Z_lO, self.Z_uO, self.Z_lI, self.Z_uI, self.I, self.k_phi)
+            master.lpush('rawQueue', pickle.dumps(args))
+        _amount = len(self.los)
         print('All {} tasks distributed. Waiting for slaves ...'.format(_amount))
         # collect calculated bs: [lo, z, bp_lo, bp_z]
-        bs = nu.zeros((_amount, 4))
+        bs = nu.zeros((len(self.los)*len(self.zs), 4))
         collectedAmount = 0
         while collectedAmount < _amount:
             popResult = master.brpop(['cookedQueue'], 3)
             if popResult == None:
                 continue
             _, binaryBp = popResult
-            bs[collectedAmount, :] = pickle.loads(binaryBp)
+            bs[collectedAmount*len(los):collectedAmount*len(los)+len(zs), :] = pickle.loads(binaryBp)
             collectedAmount += 1
         _end = dt.datetime.now()
         print('All {} trajectories generated. (cost {:.3g} hours)'.format(_amount, (_end-_start).total_seconds()/3600.0))
@@ -161,8 +160,7 @@ class CloakAgent():
         bs = nu.zeros((_amount, 4))
         for i, lo in enumerate(self.los):
             for j, z in enumerate(self.zs):
-                bp = Ball(lo, z, self.coilRadius, self.coilZs, self.FMThickness, self.Z0, self.Z_lO, self.Z_uO, self.Z_lI, self.Z_uI, self.I, self.k_phi)
-                # bp = Bcoil(lo, z, self.coilRadius, self.coilZs, self.I)
+                bp = Bp(lo, z, self.coilRadius, self.coilZs, self.FMThickness, self.Z0, self.Z_lO, self.Z_uO, self.Z_lI, self.Z_uI, self.I, self.k_phi)
                 bs[count, :] = [lo, z, bp[0], bp[1]]
                 count += 1
         # save results
@@ -179,7 +177,7 @@ class CloakAgent():
             for j, z in enumerate(self.zs):
                 args.append((lo, z, self.coilRadius, self.coilZs, self.FMThickness, self.Z0, self.Z_lO, self.Z_uO, self.Z_lI, self.Z_uI, self.I, self.k_phi))
         with mp.Pool(processes=mp.cpu_count()*3//4) as pool:
-            bs = pool.starmap(Ball, args)
+            bs = pool.starmap(Bp, args)
         bs = nu.array(bs)
         # save results
         with open('bs.pickle', 'wb') as file:
@@ -215,6 +213,18 @@ class CloakAgent():
         pl.show()
 
 
+def Baxis(lo, zs, coilRadius, coilZs, FMThickness, Z0, Z_lO, Z_uO, Z_lI, Z_uI, I, k_phi):
+    baxis = nu.zeros((len(zs), 4))
+    baxis[:, 0] = lo
+    baxis[:, 1] = zs.ravel()
+    for i, z in enumerate(zs):
+        bp = Bp(lo, z, coilRadius, coilZs, FMThickness, Z0, Z_lO, Z_uO, Z_lI, Z_uI, I, k_phi)
+        baxis[i, 2] = bp[0]
+        baxis[i, 3] = bp[1]
+    return baxis
+
+
+
 def computeBFieldInCluster(rawQueue, cookedQueue, hostIP, hostPort, shouldStop):
     slave = redis.Redis(host=hostIP, port=hostPort)
     while shouldStop.is_set() == False:
@@ -229,9 +239,9 @@ def computeBFieldInCluster(rawQueue, cookedQueue, hostIP, hostPort, shouldStop):
             continue
         _, binaryArgs = popResult
         args = pickle.loads(binaryArgs)
-        bp = Ball(*args)
-        binaryBp = pickle.dumps(nu.array([args[0], args[1], bp[0], bp[1]]))
-        slave.lpush(cookedQueue, binaryBp)
+        baxis = Baxis(*args)
+        binaryBaxis = pickle.dumps(baxis)
+        slave.lpush(cookedQueue, binaryBaxis)
 
 
 # Main
