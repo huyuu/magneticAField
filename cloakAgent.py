@@ -190,7 +190,7 @@ def computeBFieldInCluster(rawQueue, cookedQueue, hostIP, hostPort, shouldStop):
         _, binaryArgs = popResult
         args = pickle.loads(binaryArgs)
         bp = Ball(*args)
-        binaryBp = pickle.dumps(nu.array([lo, z, bp[0], bp[1]]))
+        binaryBp = pickle.dumps(nu.array([args[0], args[1], bp[0], bp[1]]))
         slave.lpush(cookedQueue, binaryBp)
 
 
