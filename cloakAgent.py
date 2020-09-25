@@ -24,7 +24,7 @@ class CloakAgent():
         # coil
         self.I = 1.0
         self.coilRadius = 1.5e-2
-        self.N = 100
+        self.N = 25
         conductorWidth = 4e-3
         # conductorWidth = self.coilRadius/100.0
         if self.N % 2 == 1:
@@ -33,7 +33,7 @@ class CloakAgent():
             self.Z0 = (self.N//2 - 0.5) * conductorWidth
         self.coilZs = nu.linspace(-self.Z0, self.Z0, self.N)
         # magnets
-        self.k_phi = 1e4
+        self.k_phi = 500
         self.FMThickness = 1e-3
         self.Z_lO = self.Z0-self.coilRadius/2+self.FMThickness
         self.Z_uO = self.Z0+self.coilRadius/2+self.FMThickness
@@ -45,7 +45,7 @@ class CloakAgent():
         self.plotLowerBoundCoeff = 0.0
         self.plotUpperBoundCoeff = 1.2
         # points to be measured
-        self.points = 50
+        self.points = 40
         self.los = nu.linspace(self.plotLeftBoundCoeff, self.plotRightBoundCoeff, self.points) * self.coilRadius
         self.zs = nu.linspace(self.plotLowerBoundCoeff, self.plotUpperBoundCoeff, self.points) * self.Z0
 
@@ -174,12 +174,16 @@ class CloakAgent():
     def runAsSingleInParallel(self):
         _amount = len(self.los) * len(self.zs)
         args = []
+        bs = nu.zeros((len(self.los)*len(self.zs), 4))
         for i, lo in enumerate(self.los):
             for j, z in enumerate(self.zs):
+                bs[i*len(self.zs)+j, 0] = lo
+                bs[i*len(self.zs)+j, 1] = z
                 args.append((lo, z, self.coilRadius, self.coilZs, self.FMThickness, self.Z0, self.Z_lO, self.Z_uO, self.Z_lI, self.Z_uI, self.I, self.k_phi))
         with mp.Pool(processes=mp.cpu_count()*3//4) as pool:
-            bs = pool.starmap(Bp, args)
-        bs = nu.array(bs)
+            bps = pool.starmap(Bp, args)
+            bps = nu.array(bps)
+            bs[:, [2, 3]] = bps
         # save results
         with open('bs.pickle', 'wb') as file:
             pickle.dump(bs, file)

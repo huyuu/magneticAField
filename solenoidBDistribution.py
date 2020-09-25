@@ -79,8 +79,10 @@ def lomI(z_, Z0, R, FMThickness):
 
 
 def Ball(lo, z, coilRadius, coilZs, FMThickness, Z0, Z_lO, Z_uO, Z_lI, Z_uI, I, k_phi):
-    return Bcoil(lo, z, coilRadius, coilZs, I) +\
-    Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_lO, Z_uO, k_phi) +\
+    # return Bcoil(lo, z, coilRadius, coilZs, I) +\
+    # Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_lO, Z_uO, k_phi) +\
+    # Bmag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_lI, Z_uI, -k_phi)
+    return Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_lO, Z_uO, k_phi) +\
     Bmag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_lI, Z_uI, -k_phi)
 
 
