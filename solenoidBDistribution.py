@@ -18,15 +18,6 @@ I = 100
 
 # Model
 
-def Acoil(lo, z, lo_, coilZs, I):
-    Aphis = nu.zeros(len(coilZs))
-    for i, z_ in enumerate(coilZs):
-        squaredK = 4*lo*lo_ / ((lo_+lo)**2 + (z-z_)**2)
-        k = sqrt(squaredK)
-        Aphis[i] = 1/k * sqrt(lo_/lo) * ( (1-0.5*k**2)*ellipk(squaredK) - ellipe(squaredK) )
-    return mu0*I/pi * Aphis.sum()
-
-
 def ellipk_dk(squaredK):
     k = sqrt(squaredK)
     return ellipe(squaredK)/(k*(1-k**2)) - ellipk(squaredK)/k
@@ -44,7 +35,7 @@ def _Bmag_lo(z_, lo, z, lom):
     squaredK = 4*lo*lo_ / beta
     k = sqrt(squaredK)
     dk_dz = -sqrt(4*lo*lo_) * beta**(-1.5) * (z-z_)
-    return ( (z-z_)/beta_r + 2*lo_*lo*(z-z_)/beta**(-1.5) )*ellipk(squaredK) +\
+    return ( (z-z_)/beta_r + 2*lo_*lo*(z-z_)/beta**1.5 )*ellipk(squaredK) +\
     ( beta_r - 2*lo*lo_/beta_r )*ellipk_dk(squaredK)*dk_dz -\
     ( (z-z_)/beta_r )*ellipe(squaredK) -\
     ( beta_r )*ellipe_dk(squaredK)*dk_dz
@@ -56,8 +47,8 @@ def _Bmag_z(z_, lo, z, lom):
     beta_r = sqrt(beta)
     squaredK = 4*lo*lo_ / beta
     k = sqrt(squaredK)
-    dk_dlo = -sqrt(lo_/lo/beta) - 2*sqrt(lo_*lo)*(lo+lo_)*beta**(-1.5)
-    return ( (lo_+lo)/beta_r - 2*lo_/beta_r + 2*lo*lo_*(lo+lo_)/beta**(-1.5) )*ellipk(squaredK) +\
+    dk_dlo = sqrt(lo_/lo/beta) - 2*sqrt(lo_*lo)*(lo+lo_)*beta**(-1.5)
+    return ( (lo_+lo)/beta_r - 2*lo_/beta_r + 2*lo*lo_*(lo+lo_)/beta**1.5 )*ellipk(squaredK) +\
     ( beta_r - 2*lo*lo_/beta_r )*ellipk_dk(squaredK)*dk_dlo -\
     ( (lo+lo_)/beta_r )*ellipe(squaredK) -\
     ( beta_r )*ellipe_dk(squaredK)*dk_dlo
@@ -87,10 +78,10 @@ def lomI(z_, Z0, R, FMThickness):
     return sqrt(R**2 - (z_-(Z0-R/2-FMThickness))**2)
 
 
-def Ball(lo, z, coilRadius, coilZs, FMThickness, Z0, Z_LO, Z_UO, Z_LI, Z_UI, I, k_phi):
+def Ball(lo, z, coilRadius, coilZs, FMThickness, Z0, Z_lO, Z_uO, Z_lI, Z_uI, I, k_phi):
     return Bcoil(lo, z, coilRadius, coilZs, I) +\
-    Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_LO, Z_UO, k_phi) +\
-    Bmag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_LI, Z_UI, -k_phi)
+    Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_lO, Z_uO, k_phi) +\
+    Bmag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_lI, Z_uI, -k_phi)
 
 
 if __name__ == '__main__':
@@ -102,10 +93,10 @@ if __name__ == '__main__':
     I = 1.0
     k_phi = 500.0
     FMThickness = 1e-3
-    Z_LO = Z0-coilRadius/2+FMThickness
-    Z_UO = Z0+coilRadius/2+FMThickness
-    Z_LI = Z0-coilRadius/2-FMThickness
-    Z_UI = Z0+coilRadius/2-FMThickness
+    Z_lO = Z0-coilRadius/2+FMThickness
+    Z_uO = Z0+coilRadius/2+FMThickness
+    Z_lI = Z0-coilRadius/2-FMThickness
+    Z_uI = Z0+coilRadius/2-FMThickness
 
     los = nu.linspace(0.1*coilRadius, 0.9*coilRadius, points)
     zs = nu.linspace(0, 1.5*Z0, points)
@@ -115,8 +106,8 @@ if __name__ == '__main__':
     # for i, lo in enumerate(los):
     #     for j, z in enumerate(zs):
     #         bp = Bcoil(lo, z, coilRadius, coilZs, I) +\
-    #         Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_LO, Z_UO, k_phi) +\
-    #         Bmag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_LI, Z_UI, -k_phi)
+    #         Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_lO, Z_uO, k_phi) +\
+    #         Bmag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_lI, Z_uI, -k_phi)
     #         print(Bp)
     #         bs_lo[i, j] = bp[0]
     #         bs_z[i, j] = bp[1]
@@ -124,7 +115,7 @@ if __name__ == '__main__':
     args = []
     for i, lo in enumerate(los):
         for j, z in enumerate(zs):
-            args.append((lo, z, coilRadius, coilZs, FMThickness, Z0, Z_LO, Z_UO, Z_LI, Z_UI, I, k_phi))
+            args.append((lo, z, coilRadius, coilZs, FMThickness, Z0, Z_lO, Z_uO, Z_lI, Z_uI, I, k_phi))
 
     print('Start distributing ...')
     with mp.Pool(processes=mp.cpu_count()*3//4) as pool:
@@ -139,9 +130,9 @@ if __name__ == '__main__':
     _los, _zs = nu.meshgrid(los, zs, indexing='ij')
     pl.contourf(_los, _zs, bs_lo, levels=50)
     pl.colorbar()
-    # samples = nu.linspace(Z_LO, Z_UO, 100)
+    # samples = nu.linspace(Z_lO, Z_uO, 100)
     # pl.scatter(lomO(samples, Z0, coilRadius, FMThickness), samples)
-    # samples = nu.linspace(Z_LI, Z_UI, 100)
+    # samples = nu.linspace(Z_lI, Z_uI, 100)
     # pl.scatter(lomI(samples, Z0, coilRadius, FMThickness), samples)
     # pl.xlim([los.min(), los.max()])
     # pl.ylim([zs.min(), zs.max()])
