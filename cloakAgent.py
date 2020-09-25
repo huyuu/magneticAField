@@ -44,7 +44,7 @@ class CloakAgent():
         self.plotLowerBoundCoeff = 0.0
         self.plotUpperBoundCoeff = 1.5
         # points to be measured
-        self.points = 20
+        self.points = 100
         self.los = nu.linspace(self.plotLeftBoundCoeff, self.plotRightBoundCoeff, self.points) * self.coilRadius
         self.zs = nu.linspace(self.plotLowerBoundCoeff, self.plotUpperBoundCoeff, self.points) * self.Z0
 
@@ -84,6 +84,9 @@ class CloakAgent():
         # plot saved B Distribution
         elif modeString.lower() == 'b':
             self.__plotBFieldDistribution()
+        # run as single mode
+        elif modeString.lower() == '1':
+            self.runAsSingle()
 
 
     def runAsMasterOnCluster(self):
@@ -149,6 +152,22 @@ class CloakAgent():
             worker.join()
 
 
+    def runAsSingle(self):
+        _amount = len(self.los) * len(self.zs)
+        count = 0
+        bs = nu.zeros((_amount, 4))
+        for i, lo in enumerate(self.los):
+            for j, z in enumerate(self.zs):
+                bp = Ball(lo, z, self.coilRadius, self.coilZs, self.FMThickness, self.Z0, self.Z_lO, self.Z_uO, self.Z_lI, self.Z_uI, self.I, self.k_phi)
+                bs[count, :] = [lo, z, bp[0], bp[1]]
+                count += 1
+        # save results
+        with open('bs.pickle', 'wb') as file:
+            pickle.dump(bs, file)
+        # plot
+        self.__plotBFieldDistribution()
+
+
     def __plotBFieldDistribution(self):
         with open('bs.pickle', 'rb') as file:
             bs = pickle.load(file)
@@ -166,8 +185,8 @@ class CloakAgent():
         zs = nu.array(zs)
         bs_lo = nu.array(bs_lo)
         bs_z = nu.array(bs_z)
-        _los, _zs = nu.meshgrid(los, zs, indexing='ij')
-        pl.quiver(_los/self.coilRadius, _zs/self.Z0, bs_lo, bs_z, label=r'$B$ field')
+        # _los, _zs = nu.meshgrid(los, zs, indexing='ij')
+        pl.quiver(los/self.coilRadius, zs/self.Z0, bs_lo, bs_z, label=r'$B$ field')
         pl.title(r'Coil $B$ Distribution ' + f'(N={self.N})', fontsize=24)
         pl.xlabel(r'Relative Radius Position $\rho$/coilRadius [-]', fontsize=22)
         pl.ylabel(r'Relative Z Position $z$/coilHeight [-]', fontsize=22)
