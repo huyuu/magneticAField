@@ -192,3 +192,11 @@ def computeBFieldInCluster(rawQueue, cookedQueue, hostIP, hostPort, shouldStop):
         bp = Ball(*args)
         binaryBp = pickle.dumps(nu.array([lo, z, bp[0], bp[1]]))
         slave.lpush(cookedQueue, binaryBp)
+
+
+# Main
+
+if __name__ == '__main__':
+    mp.freeze_support()
+    cloakAgent = CloakAgent()
+    cloakAgent.run()
