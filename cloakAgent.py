@@ -39,7 +39,7 @@ class CloakAgent():
         self.Z_lI = self.Z0-self.coilRadius/2-self.FMThickness
         self.Z_uI = self.Z0+self.coilRadius/2-self.FMThickness
         # plots
-        self.plotLeftBoundCoeff = 0.0
+        self.plotLeftBoundCoeff = 0.1
         self.plotRightBoundCoeff = 0.9
         self.plotLowerBoundCoeff = 0.0
         self.plotUpperBoundCoeff = 1.5
