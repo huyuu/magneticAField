@@ -13,6 +13,7 @@ from scipy.integrate import quadrature, dblquad, tplquad
 from scipy.special import ellipk, ellipe, ellipkm1
 
 from solenoidBDistribution import Ball as Bp
+from solenoidBDistribution import lomO, lomI
 
 
 # Model
@@ -202,19 +203,47 @@ class CloakAgent():
             bs_z.append(bp_z)
         bs_lo = nu.array(bs_lo)
         bs_z = nu.array(bs_z)
-
+        # plot bs_lo
         _los, _zs = nu.meshgrid(self.los, self.zs, indexing='ij')
+        pl.title(r'Cloak $B_{\rho}$ Distribution [T] ' + f'(N={self.N})', fontsize=24)
+        pl.xlabel(r'Relative Radius Position $\rho$/coilRadius [-]', fontsize=22)
+        pl.ylabel(r'Relative Z Position $z$/coilHeight [-]', fontsize=22)
+        pl.tick_params(labelsize=16)
         pl.contourf(_los/self.coilRadius, _zs/self.Z0, bs_lo.reshape(self.points, self.points), levels=50)
         pl.colorbar()
+        samples = nu.linspace(self.Z_lO, self.Z_uO, 500)
+        pl.plot(lomO(samples, self.Z0, self.coilRadius, self.FMThickness)/self.coilRadius, samples/self.Z0, '--', c='gray')
+        samples = nu.linspace(self.Z_lI, self.Z_uI, 500)
+        pl.plot(lomI(samples, self.Z0, self.coilRadius, self.FMThickness)/self.coilRadius, samples/self.Z0, '--', c='gray')
+        pl.xlim([self.los.min()/self.coilRadius, self.los.max()/self.coilRadius])
+        pl.ylim([self.zs.min()/self.Z0, self.zs.max()/self.Z0])
         pl.show()
+        # plot bs_z
+        pl.title(r'Cloak $B_z$ Distribution [T] ' + f'(N={self.N})', fontsize=24)
+        pl.xlabel(r'Relative Radius Position $\rho$/coilRadius [-]', fontsize=22)
+        pl.ylabel(r'Relative Z Position $z$/coilHeight [-]', fontsize=22)
+        pl.tick_params(labelsize=16)
         pl.contourf(_los/self.coilRadius, _zs/self.Z0, bs_z.reshape(self.points, self.points), levels=50)
         pl.colorbar()
+        samples = nu.linspace(self.Z_lO, self.Z_uO, 500)
+        pl.plot(lomO(samples, self.Z0, self.coilRadius, self.FMThickness)/self.coilRadius, samples/self.Z0, '--', c='gray')
+        samples = nu.linspace(self.Z_lI, self.Z_uI, 500)
+        pl.plot(lomI(samples, self.Z0, self.coilRadius, self.FMThickness)/self.coilRadius, samples/self.Z0, '--', c='gray')
+        pl.xlim([self.los.min()/self.coilRadius, self.los.max()/self.coilRadius])
+        pl.ylim([self.zs.min()/self.Z0, self.zs.max()/self.Z0])
         pl.show()
-        pl.title(r'Coil $B$ Distribution ' + f'(N={self.N})', fontsize=24)
+        # plot quiver
+        pl.title(r'Cloak $\mathbf{B}$ Distribution [T] ' + f'(N={self.N})', fontsize=24)
         pl.xlabel(r'Relative Radius Position $\rho$/coilRadius [-]', fontsize=22)
         pl.ylabel(r'Relative Z Position $z$/coilHeight [-]', fontsize=22)
         pl.tick_params(labelsize=16)
         pl.quiver(_los/self.coilRadius, _zs/self.Z0, bs_lo, bs_z, label=r'$B$ field')
+        samples = nu.linspace(self.Z_lO, self.Z_uO, 500)
+        pl.plot(lomO(samples, self.Z0, self.coilRadius, self.FMThickness)/self.coilRadius, samples/self.Z0, '--', c='gray')
+        samples = nu.linspace(self.Z_lI, self.Z_uI, 500)
+        pl.plot(lomI(samples, self.Z0, self.coilRadius, self.FMThickness)/self.coilRadius, samples/self.Z0, '--', c='gray')
+        pl.xlim([self.los.min()/self.coilRadius, self.los.max()/self.coilRadius])
+        pl.ylim([self.zs.min()/self.Z0, self.zs.max()/self.Z0])
         pl.show()
 
 
