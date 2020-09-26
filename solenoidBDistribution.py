@@ -55,8 +55,8 @@ def _Bmag_z(z_, lo, z, lom):
 
 
 def Bmag(lo, z, lom, Z_L, Z_U, k_phi):
-    B_lo = -mu0*k_phi/(2*pi*lo) * quadrature(_Bmag_lo, Z_L, Z_U, args=(lo, z, lom), maxiter=10000)[0]
-    B_z = mu0*k_phi/(2*pi*lo) * quadrature(_Bmag_z, Z_L, Z_U, args=(lo, z, lom), maxiter=10000)[0]
+    B_lo = -mu0*k_phi/(2*pi*lo) * quadrature(_Bmag_lo, Z_L, Z_U, args=(lo, z, lom), maxiter=20000)[0]
+    B_z = mu0*k_phi/(2*pi*lo) * quadrature(_Bmag_z, Z_L, Z_U, args=(lo, z, lom), maxiter=20000)[0]
     return nu.array([B_lo, B_z])
 
 
@@ -79,11 +79,11 @@ def lomI(z_, Z0, R, FMThickness):
 
 
 def Ball(lo, z, coilRadius, coilZs, FMThickness, Z0, Z_lO, Z_uO, Z_lI, Z_uI, I, k_phi):
-    # return Bcoil(lo, z, coilRadius, coilZs, I) +\
-    # Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_lO, Z_uO, k_phi) +\
-    # Bmag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_lI, Z_uI, -k_phi)
-    return Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_lO, Z_uO, k_phi) +\
+    return Bcoil(lo, z, coilRadius, coilZs, I) +\
+    Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_lO, Z_uO, k_phi) +\
     Bmag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_lI, Z_uI, -k_phi)
+    # return Bmag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_lO, Z_uO, k_phi) +\
+    # Bmag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_lI, Z_uI, -k_phi)
 
 
 if __name__ == '__main__':

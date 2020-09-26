@@ -24,8 +24,8 @@ class CloakAgent():
         # coil
         self.I = 1.0
         self.coilRadius = 1.5e-2
-        self.N = 25
-        conductorWidth = 4e-3
+        self.N = 31
+        conductorWidth = 2e-3
         # conductorWidth = self.coilRadius/100.0
         if self.N % 2 == 1:
             self.Z0 = (self.N//2) * conductorWidth
@@ -33,7 +33,7 @@ class CloakAgent():
             self.Z0 = (self.N//2 - 0.5) * conductorWidth
         self.coilZs = nu.linspace(-self.Z0, self.Z0, self.N)
         # magnets
-        self.k_phi = 500
+        self.k_phi = 20*self.N*self.I
         self.FMThickness = 1e-3
         self.Z_lO = self.Z0-self.coilRadius/2+self.FMThickness
         self.Z_uO = self.Z0+self.coilRadius/2+self.FMThickness
@@ -43,9 +43,9 @@ class CloakAgent():
         self.plotLeftBoundCoeff = 0.1
         self.plotRightBoundCoeff = 0.9
         self.plotLowerBoundCoeff = 0.0
-        self.plotUpperBoundCoeff = 1.2
+        self.plotUpperBoundCoeff = 1.5
         # points to be measured
-        self.points = 40
+        self.points = 100
         self.los = nu.linspace(self.plotLeftBoundCoeff, self.plotRightBoundCoeff, self.points) * self.coilRadius
         self.zs = nu.linspace(self.plotLowerBoundCoeff, self.plotUpperBoundCoeff, self.points) * self.Z0
 

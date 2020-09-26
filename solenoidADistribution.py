@@ -59,7 +59,7 @@ if __name__ == '__main__':
     coilZs = nu.linspace(-Z0, Z0, N)
     points = 50
     I = 1.0
-    k_phi = 500.0
+    k_phi = 1000
     FMThickness = 1e-3
     Z_LO = Z0-coilRadius/2+FMThickness
     Z_UO = Z0+coilRadius/2+FMThickness
@@ -75,16 +75,15 @@ if __name__ == '__main__':
             As[i, j] = Acoil(lo, z, coilRadius, coilZs, I) +\
             Amag(lo, z, lambda z_: lomO(z_, Z0, coilRadius, FMThickness), Z_LO, Z_UO, k_phi) +\
             Amag(lo, z, lambda z_: lomI(z_, Z0, coilRadius, FMThickness), Z_LI, Z_UI, -k_phi)
-            # As[i, j] = Acoil(lo, z, coilRadius, coilZs, I)
-            print(As[i, j])
+            # print(As[i, j])
 
     _los, _zs = nu.meshgrid(los, zs, indexing='ij')
-    pl.contourf(_los, _zs, As, levels=50)
+    pl.contourf(_los/coilRadius, _zs/Z0, As, levels=50)
     pl.colorbar()
     samples = nu.linspace(Z_LO, Z_UO, 100)
-    pl.scatter(lomO(samples, Z0, coilRadius, FMThickness), samples)
+    pl.scatter(lomO(samples, Z0, coilRadius, FMThickness)/coilRadius, samples/Z0)
     samples = nu.linspace(Z_LI, Z_UI, 100)
-    pl.scatter(lomI(samples, Z0, coilRadius, FMThickness), samples)
-    pl.xlim([los.min(), los.max()])
-    pl.ylim([zs.min(), zs.max()])
+    pl.scatter(lomI(samples, Z0, coilRadius, FMThickness)/coilRadius, samples/Z0)
+    pl.xlim([los.min()/coilRadius, los.max()/coilRadius])
+    pl.ylim([zs.min()/Z0, zs.max()/Z0])
     pl.show()
