@@ -23,7 +23,7 @@ class CloakAgent():
         self.hostIP = '10.32.247.50'
         self.hostPort=6379
         # coil
-        self.I = 1.0
+        self.I = -1.0
         self.coilRadius = 1.5e-2
         self.N = 31
         conductorWidth = 2e-3
