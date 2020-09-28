@@ -25,8 +25,8 @@ class CloakAgent():
         # coil
         self.I = -1.0
         self.coilRadius = 1.5e-2
-        self.N = 31
-        conductorWidth = 2e-3
+        self.N = 25
+        conductorWidth = 4e-3
         # conductorWidth = self.coilRadius/100.0
         if self.N % 2 == 1:
             self.Z0 = (self.N//2) * conductorWidth
