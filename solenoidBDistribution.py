@@ -13,7 +13,7 @@ from scipy.special import ellipk, ellipe, ellipkm1
 # Constants
 
 mu0 = 4*nu.pi*1e-7
-I = 100
+maxiter = int(1e5)
 
 
 # Model
@@ -55,8 +55,8 @@ def _Bmag_z(z_, lo, z, lom):
 
 
 def Bmag(lo, z, lom, Z_L, Z_U, k_phi):
-    B_lo = -mu0*k_phi/(2*pi*lo) * quadrature(_Bmag_lo, Z_L, Z_U, args=(lo, z, lom), maxiter=20000)[0]
-    B_z = mu0*k_phi/(2*pi*lo) * quadrature(_Bmag_z, Z_L, Z_U, args=(lo, z, lom), maxiter=20000)[0]
+    B_lo = -mu0*k_phi/(2*pi*lo) * quadrature(_Bmag_lo, Z_L, Z_U, args=(lo, z, lom), maxiter=maxiter)[0]
+    B_z = mu0*k_phi/(2*pi*lo) * quadrature(_Bmag_z, Z_L, Z_U, args=(lo, z, lom), maxiter=maxiter)[0]
     return nu.array([B_lo, B_z])
 
 
