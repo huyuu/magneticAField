@@ -124,7 +124,7 @@ class CloakAgent():
             bs[collectedAmount*len(self.los):collectedAmount*len(self.los)+len(self.zs), :] = pickle.loads(binaryBp)
             collectedAmount += 1
         _end = dt.datetime.now()
-        print('All {} trajectories generated. (cost {:.3g} hours)'.format(_amount, (_end-_start).total_seconds()/3600.0))
+        print('Calculation done (cost {:.3g} hours)'.format((_end-_start).total_seconds()/3600.0))
         # sort before save
         bs = nu.sort(bs, axis=0)
         # save results
@@ -173,6 +173,7 @@ class CloakAgent():
 
 
     def runAsSingleInParallel(self):
+        _start = dt.datetime.now()
         _amount = len(self.los) * len(self.zs)
         args = []
         bs = nu.zeros((len(self.los)*len(self.zs), 4))
@@ -188,6 +189,8 @@ class CloakAgent():
         # save results
         with open('bs.pickle', 'wb') as file:
             pickle.dump(bs, file)
+        _end = dt.datetime.now()
+        print('Calculation done (cost {:.3g} hours)'.format((_end-_start).total_seconds()/3600.0))
         # plot
         self.__plotBFieldDistribution()
 
